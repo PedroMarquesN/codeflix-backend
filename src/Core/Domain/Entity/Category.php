@@ -3,17 +3,20 @@
 namespace Core\Domain\Entity;
 use Core\Domain\Entity\Traits\MethodsMagicsTrait;
 use Core\Domain\Exception\EntityValidationException;
+use Core\Domain\Validation\DomainValidation;
+use Core\Domain\ValueObject\Uuid;
 
 
 class Category
 {
     use MethodsMagicsTrait;
     public function __construct(
-        protected string $id = '',
+        protected Uuid | string $id = '',
         protected string $name = '',
         protected string $description = '',
         protected bool $isActive = true
     ) {
+        $this->id = $this->id ? new Uuid($this->id) : Uuid::random();
 
         $this->validate();
     }
@@ -38,21 +41,11 @@ class Category
 
     public function validate()
     {
-        if (empty($this->name)) {
-            throw new EntityValidationException('Name is required');
-        }
+        DomainValidation::notNull($this->name, 'Name is required');
+        DomainValidation::strMinLength($this->name, 3, 'Name must have at least 3 characters');
+        DomainValidation::strMaxLength($this->name, 255, 'Name must not exceed 255 characters');
+        DomainValidation::strCanNullAndMaxLength($this->description, 255, 'Description must not exceed 255 characters');
 
-        if (strlen($this->name) < 3 || strlen($this->name) > 100) {
-            throw new EntityValidationException('Name must be between 3 and 100 characters');
-        }
-
-        if (empty($this->description)) {
-            throw new EntityValidationException('Description is required');
-        }
-
-        if (strlen($this->description) < 3 || strlen($this->description) > 100) {
-            throw new EntityValidationException('Description must be between 3 and 100 characters');
-        }
     }
 
 }

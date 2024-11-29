@@ -11,21 +11,22 @@ class CategoryUnitTest extends TestCase
     public function testAttributes()
     {
         $category = new Category(
-            name: 'Category Name',
-            description: 'Category Description',
+            name: 'Cat Name',
+            description: 'Cat Desc',
             isActive: true
         );
 
-        $this->assertEquals('Category Name', $category->getName());
-        $this->assertEquals('Category Description', $category->getDescription());
+        $this->assertNotEmpty($category->getId());
+        $this->assertEquals('Cat Name', $category->getName());
+        $this->assertEquals('Cat Desc', $category->getDescription());
         $this->assertEquals(true, $category->isActive());
     }
 
     public function testActivated()
     {
         $category = new Category(
-            name: 'Category Name',
-            description: 'Category Description',
+            name: 'Cat Name',
+            description: 'Cat Desc',
             isActive: true
         );
 
@@ -36,22 +37,22 @@ class CategoryUnitTest extends TestCase
 
     public function testUpdate()
     {
-        $uuid = 'uuid.value';
+        $uuid = (string) \Ramsey\Uuid\Uuid::uuid4()->toString();
         $category = new Category(
             id: $uuid,
-            name: 'Category Name',
-            description: 'Category Description',
+            name: 'Cat Name',
+            description: 'Cat Desc',
             isActive: true
         );
 
         $category->update(
-            name: 'New Category Name',
-            description: 'New Category Description',
+            name: 'New Cat Name',
+            description: 'New Cat Desc',
             isActive: false
         );
 
-        $this->assertEquals('New Category Name', $category->getName());
-        $this->assertEquals('New Category Description', $category->getDescription());
+        $this->assertEquals('New Cat Name', $category->getName());
+        $this->assertEquals('New Cat Desc', $category->getDescription());
         $this->assertEquals(false, $category->isActive());
     }
 
@@ -66,5 +67,19 @@ class CategoryUnitTest extends TestCase
         );
 
         $category->validate();
+    }
+
+    public function testExceptionDescription()
+    {
+        try {
+             new Category(
+                name: 'Category Name',
+                description: random_bytes(3555555)
+            );
+            $this->asserttrue(false);
+        } catch (EntityValidationException $e) {
+            $this->assertInstanceOf(EntityValidationException::class, $e);
+        }
+
     }
 }
